@@ -1227,96 +1227,98 @@ const specialtyData = {
 window.scrollTo(0, 0);
 </script>
 
-<!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<!-- Lead Capture — Google Sheets Backend -->
 <script>
-// ═══ LEAD CAPTURE & NOTIFICATIONS ═══
-function getSettings() {
+// ═══ CONFIG — filled in by user ═══
+// These are set via the dashboard Settings tab and stored in localStorage
+function getCfg() {
   return JSON.parse(localStorage.getItem('ghb_settings') || '{}');
 }
 
 async function submitEnquiry(e) {
-  e.preventDefault();
+  if (e) e.preventDefault();
   const btn = document.getElementById('formSubmitBtn');
-  const fname = document.getElementById('cf-fname')?.value.trim() || '';
-  const lname = document.getElementById('cf-lname')?.value.trim() || '';
-  const email = document.getElementById('cf-email')?.value.trim() || '';
-  const phone = document.getElementById('cf-phone')?.value.trim() || '';
-  const country = document.getElementById('cf-country')?.value || '';
-  const specialty = document.getElementById('cf-specialty')?.value || '';
-  const desc = document.getElementById('cf-desc')?.value.trim() || '';
-  const source = document.getElementById('cf-source')?.value || 'Website Form';
+  const success = document.getElementById('formSuccess');
 
-  if (!fname || !email) { alert('Please enter your name and email address.'); return; }
+  // Collect fields
+  const firstName = (document.getElementById('cf-fname')?.value || '').trim();
+  const lastName  = (document.getElementById('cf-lname')?.value || '').trim();
+  const email     = (document.getElementById('cf-email')?.value || '').trim();
+  const phone     = (document.getElementById('cf-phone')?.value || '').trim();
+  const country   = (document.getElementById('cf-country')?.value || '');
+  const specialty = (document.getElementById('cf-specialty')?.value || '');
+  const desc      = (document.getElementById('cf-desc')?.value || '').trim();
+  const heardFrom = (document.getElementById('cf-source')?.value || '');
+
+  // Validate
+  if (!firstName) { alert('Please enter your first name.'); return; }
+  if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
   if (!country) { alert('Please select your country.'); return; }
   if (!specialty) { alert('Please select the medical specialty.'); return; }
 
+  // Disable button
   btn.textContent = 'Sending...';
   btn.disabled = true;
 
-  const lead = {
-    id: Date.now().toString(),
-    name: `${fname} ${lname}`.trim(),
+  const cfg = getCfg();
+  const payload = {
+    firstName, lastName,
+    fullName: (firstName + ' ' + lastName).trim(),
     email, phone, country, specialty,
     description: desc,
-    source: source || 'Website Form',
-    status: 'New',
+    source: 'Website Form',
+    heardFrom,
+    waApiKey:    cfg.waApiKey    || '',
+    notifyEmail: cfg.emailTo     || 'globalhealthbridge.in@gmail.com'
+  };
+
+  const scriptUrl = cfg.scriptUrl || '';
+
+  let submitted = false;
+
+  // ── Primary: Google Sheets via Apps Script ──
+  if (scriptUrl) {
+    try {
+      await fetch(scriptUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      submitted = true;
+    } catch(err) {
+      console.log('Sheets submission error:', err);
+    }
+  }
+
+  // ── Fallback: localStorage (always save locally too) ──
+  const lead = {
+    id: 'GHB-' + Date.now(),
     date: new Date().toISOString(),
+    name: payload.fullName,
+    email, phone, country, specialty,
+    description: desc,
+    source: 'Website Form',
+    status: 'New',
     notes: '',
     flag: getFlag(country)
   };
-
-  // Save to localStorage (shared with dashboard on same browser, or via storage event)
   const existing = JSON.parse(localStorage.getItem('ghb_leads') || '[]');
   existing.unshift(lead);
   localStorage.setItem('ghb_leads', JSON.stringify(existing));
-  // Trigger storage event for dashboard (if open in another tab)
-  localStorage.setItem('ghb_new_lead', JSON.stringify(lead));
-  setTimeout(() => localStorage.removeItem('ghb_new_lead'), 1000);
-
-  const s = getSettings();
-
-  // ── WhatsApp via CallMeBot ──
-  if (s.waEnabled !== false && s.waApiKey) {
-    const msg = encodeURIComponent(
-      `🏥 NEW LEAD – Global Health Bridge\n\nName: ${lead.name}\nSpecialty: ${specialty}\nCountry: ${country}\nEmail: ${email}\nPhone: ${phone}\n\nDescription: ${desc.substring(0,200)}${desc.length>200?'...':''}\n\nSource: ${lead.source}\nTime: ${new Date().toLocaleString()}`
-    );
-    const waNum = (s.waNumber || '+919650506993').replace(/\D/g,'');
-    const waUrl = `https://api.callmebot.com/whatsapp.php?phone=${waNum}&text=${msg}&apikey=${s.waApiKey}`;
-    try { await fetch(waUrl, {mode:'no-cors'}); } catch(err) { console.log('WA notification attempted'); }
-  }
-
-  // ── Email via EmailJS ──
-  if (s.emailEnabled !== false && s.emailServiceId && s.emailTemplateId && s.emailPublicKey) {
-    try {
-      emailjs.init(s.emailPublicKey);
-      await emailjs.send(s.emailServiceId, s.emailTemplateId, {
-        to_email: s.emailTo || 'globalhealthbridge.in@gmail.com',
-        lead_name: lead.name,
-        lead_email: email,
-        lead_phone: phone || 'Not provided',
-        lead_country: country,
-        lead_specialty: specialty,
-        lead_description: desc || 'Not provided',
-        lead_source: lead.source,
-        lead_date: new Date().toLocaleString(),
-        reply_to: email
-      });
-    } catch(err) { console.log('Email notification error:', err); }
-  }
 
   // Show success
   btn.style.display = 'none';
-  document.getElementById('formSuccess').style.display = 'block';
-  // Scroll to success message
-  document.getElementById('formSuccess').scrollIntoView({behavior:'smooth', block:'center'});
+  success.style.display = 'block';
+  success.scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 function getFlag(country) {
-  const flags = {Kazakhstan:'🇰🇿',Uzbekistan:'🇺🇿',Turkmenistan:'🇹🇲',Kyrgyzstan:'🇰🇬',Tajikistan:'🇹🇯',Nigeria:'🇳🇬',Kenya:'🇰🇪',Ethiopia:'🇪🇹',Tanzania:'🇹🇿',Uganda:'🇺🇬'};
-  return flags[country] || '🌍';
+  const f = {Kazakhstan:'🇰🇿',Uzbekistan:'🇺🇿',Turkmenistan:'🇹🇲',Kyrgyzstan:'🇰🇬',
+             Tajikistan:'🇹🇯',Nigeria:'🇳🇬',Kenya:'🇰🇪',Ethiopia:'🇪🇹',
+             Tanzania:'🇹🇿',Uganda:'🇺🇬'};
+  return f[country] || '🌍';
 }
 </script>
-
 </body>
 </html>
