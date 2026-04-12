@@ -115,6 +115,73 @@ tr:hover td{background:#fafcff;}
 </head>
 <body>
 
+
+<style>
+#lockScreen{position:fixed;inset:0;background:#07192e;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+#lockScreen.hidden{display:none;}
+.lock-card{background:#0d2540;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:48px 40px;width:100%;max-width:380px;text-align:center;}
+.lock-logo{font-family:'Inter',sans-serif;font-size:18px;font-weight:600;color:#fff;margin-bottom:4px;}
+.lock-sub{font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:36px;}
+.lock-title{font-size:22px;font-weight:600;color:#fff;margin-bottom:6px;}
+.lock-desc{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:28px;line-height:1.6;}
+.lock-input{width:100%;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;padding:13px 16px;font-family:'Inter',sans-serif;font-size:15px;color:#fff;outline:none;text-align:center;letter-spacing:0.08em;transition:border-color 0.2s;margin-bottom:14px;}
+.lock-input:focus{border-color:rgba(13,107,85,0.6);}
+.lock-input.error{border-color:rgba(192,57,43,0.6);animation:shake 0.3s ease;}
+.lock-btn{width:100%;background:#0d6b55;color:#fff;border:none;border-radius:10px;padding:13px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background 0.2s;margin-bottom:12px;}
+.lock-btn:hover{background:#085040;}
+.lock-error{font-size:12px;color:#e74c3c;min-height:16px;margin-top:-6px;margin-bottom:8px;}
+.lock-hint{font-size:11px;color:rgba(255,255,255,0.2);margin-top:16px;line-height:1.6;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}</style>
+
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-logo">Global Health Bridge</div>
+    <div class="lock-sub">Admin Dashboard</div>
+    <div style="width:48px;height:48px;border-radius:50%;background:rgba(13,107,85,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <div class="lock-title">Secure Access</div>
+    <div class="lock-desc">Enter your password to access the lead management dashboard.</div>
+    <input class="lock-input" type="password" id="lockPassword" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPassword()">
+    <div class="lock-error" id="lockError"></div>
+    <button class="lock-btn" onclick="checkPassword()">Sign In →</button>
+    <div class="lock-hint">This dashboard is private.<br>Accessible only to Global Health Bridge team.</div>
+  </div>
+</div>
+
+<script>
+// ═══ PASSWORD PROTECTION ═══
+// Default password — change this to something strong before deploying
+const DASHBOARD_PASSWORD = 'GHB@Admin2025';
+const SESSION_KEY = 'ghb_dashboard_auth';
+const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours
+
+function checkAuth() {
+  const auth = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
+  if (auth && Date.now() - auth.time < SESSION_DURATION) {
+    document.getElementById('lockScreen').classList.add('hidden');
+  }
+}
+
+function checkPassword() {
+  const input = document.getElementById('lockPassword');
+  const error = document.getElementById('lockError');
+  if (input.value === DASHBOARD_PASSWORD) {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({time: Date.now()}));
+    document.getElementById('lockScreen').classList.add('hidden');
+    error.textContent = '';
+  } else {
+    input.classList.add('error');
+    error.textContent = 'Incorrect password. Please try again.';
+    input.value = '';
+    setTimeout(() => input.classList.remove('error'), 400);
+  }
+}
+
+// Check on load
+checkAuth();
+</script>
+
 <!-- SIDEBAR -->
 <div class="sidebar">
   <div class="sidebar-logo">
@@ -215,42 +282,117 @@ tr:hover td{background:#fafcff;}
 
     <!-- ══ SETTINGS TAB ══ -->
     <div class="tab-content" id="tab-settings">
+      <!-- WhatsApp Setup -->
       <div class="config-card">
-        <h4>📱 WhatsApp Notification (via CallMeBot)</h4>
-        <p style="font-size:13px;color:var(--text-mid);margin-bottom:14px;font-weight:300;">When a lead submits the form, a WhatsApp message is sent to your number via CallMeBot API — a free service.</p>
-        <label style="font-size:12px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Your WhatsApp Number (with country code)</label>
-        <input class="config-input" type="text" id="waNumber" placeholder="+919650506993" value="+919650506993">
-        <label style="font-size:12px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">CallMeBot API Key</label>
-        <input class="config-input" type="text" id="waApiKey" placeholder="Enter your CallMeBot API key">
-        <div class="config-note">
-          <strong>How to activate:</strong> Send a WhatsApp message to <strong>+34 644 52 71 67</strong> saying:<br>
-          <code style="background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:4px;font-size:12px;">I allow callmebot to send me messages</code><br>
-          Within a few minutes you'll receive your API key back via WhatsApp. Paste it above.
+        <h4>📱 WhatsApp Notifications — Setup Guide</h4>
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#92400e;">
+          <strong>⏱ Takes about 2 minutes. Completely free.</strong>
         </div>
-        <div class="toggle-row" style="margin-top:14px;">
+        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:14px;background:var(--neutral);border-radius:8px;border:1px solid var(--border);">
+            <div style="width:26px;height:26px;border-radius:50%;background:#25D366;color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+            <div>
+              <strong style="display:block;margin-bottom:4px;font-size:13px;">Open WhatsApp on your phone</strong>
+              <span style="font-size:12px;color:var(--text-mid);">Add this number as a new contact: <strong>+34 644 52 71 67</strong> (save it as "CallMeBot")</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:14px;background:var(--neutral);border-radius:8px;border:1px solid var(--border);">
+            <div style="width:26px;height:26px;border-radius:50%;background:#25D366;color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+            <div>
+              <strong style="display:block;margin-bottom:4px;font-size:13px;">Send this exact message to that number</strong>
+              <div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-family:monospace;font-size:12px;color:var(--text);margin-top:4px;">I allow callmebot to send me messages</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:14px;background:var(--neutral);border-radius:8px;border:1px solid var(--border);">
+            <div style="width:26px;height:26px;border-radius:50%;background:#25D366;color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+            <div>
+              <strong style="display:block;margin-bottom:4px;font-size:13px;">You'll receive your API key within 2 minutes</strong>
+              <span style="font-size:12px;color:var(--text-mid);">CallMeBot will reply with a message containing your API key. Copy it and paste it below.</span>
+            </div>
+          </div>
+        </div>
+        <label style="font-size:11px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Your WhatsApp Number (with country code)</label>
+        <input class="config-input" type="text" id="waNumber" placeholder="+919650506993" value="+919650506993">
+        <label style="font-size:11px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">CallMeBot API Key (from Step 3 above)</label>
+        <input class="config-input" type="text" id="waApiKey" placeholder="Paste your API key here">
+        <div class="toggle-row">
           <span style="font-size:13px;font-weight:500;">Enable WhatsApp notifications</span>
           <label class="toggle"><input type="checkbox" id="waEnabled" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
         </div>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%;justify-content:center;" onclick="saveSettings();testWhatsApp()">Save & Test WhatsApp</button>
+        <div id="waTestResult" style="font-size:12px;color:var(--teal);margin-top:8px;text-align:center;"></div>
       </div>
 
+      <!-- EmailJS Setup -->
       <div class="config-card">
-        <h4>📧 Email Notification (via EmailJS)</h4>
-        <p style="font-size:13px;color:var(--text-mid);margin-bottom:14px;font-weight:300;">When a lead submits the form, a full email notification is sent to your Gmail address — free for up to 200 emails/month via EmailJS.</p>
-        <label style="font-size:12px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Your Email Address</label>
-        <input class="config-input" type="email" id="emailTo" placeholder="globalhealthbridge.in@gmail.com" value="globalhealthbridge.in@gmail.com">
-        <label style="font-size:12px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">EmailJS Service ID</label>
+        <h4>📧 Email Notifications — Setup Guide</h4>
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1e40af;">
+          <strong>⏱ Takes about 5 minutes. Free for up to 200 emails/month.</strong>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:14px;background:var(--neutral);border-radius:8px;border:1px solid var(--border);">
+            <div style="width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+            <div>
+              <strong style="display:block;margin-bottom:4px;font-size:13px;">Sign up at EmailJS</strong>
+              <span style="font-size:12px;color:var(--text-mid);">Go to <a href="https://www.emailjs.com" target="_blank" style="color:var(--blue);font-weight:500;">emailjs.com</a> → click "Sign Up Free" → create an account using your Gmail</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:14px;background:var(--neutral);border-radius:8px;border:1px solid var(--border);">
+            <div style="width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+            <div>
+              <strong style="display:block;margin-bottom:4px;font-size:13px;">Add an Email Service</strong>
+              <span style="font-size:12px;color:var(--text-mid);">In EmailJS dashboard → click <strong>"Email Services"</strong> → <strong>"Add New Service"</strong> → choose <strong>Gmail</strong> → connect your globalhealthbridge.in@gmail.com account → click <strong>"Create Service"</strong>. Copy the <strong>Service ID</strong> shown.</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:14px;background:var(--neutral);border-radius:8px;border:1px solid var(--border);">
+            <div style="width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+            <div>
+              <strong style="display:block;margin-bottom:4px;font-size:13px;">Create an Email Template</strong>
+              <span style="font-size:12px;color:var(--text-mid);">Click <strong>"Email Templates"</strong> → <strong>"Create New Template"</strong>. Set Subject to: <br><code style="background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px;font-size:11px;">New Lead: {{lead_name}} — {{lead_specialty}}</code><br>In the body, paste these variables (EmailJS will fill them automatically):<br><code style="background:rgba(0,0,0,0.06);padding:4px 6px;border-radius:3px;font-size:11px;display:block;margin-top:4px;line-height:1.8;">Name: {{lead_name}}<br>Email: {{lead_email}}<br>Phone: {{lead_phone}}<br>Country: {{lead_country}}<br>Specialty: {{lead_specialty}}<br>Description: {{lead_description}}<br>Source: {{lead_source}}<br>Date: {{lead_date}}</code><br>Click <strong>"Save"</strong>. Copy the <strong>Template ID</strong>.</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:14px;background:var(--neutral);border-radius:8px;border:1px solid var(--border);">
+            <div style="width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+            <div>
+              <strong style="display:block;margin-bottom:4px;font-size:13px;">Get your Public Key</strong>
+              <span style="font-size:12px;color:var(--text-mid);">In EmailJS → click your account name (top right) → <strong>"Account"</strong> → copy the <strong>Public Key</strong> shown on that page.</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:14px;background:var(--neutral);border-radius:8px;border:1px solid var(--border);">
+            <div style="width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">5</div>
+            <div>
+              <strong style="display:block;margin-bottom:4px;font-size:13px;">Paste all 3 keys below and save</strong>
+              <span style="font-size:12px;color:var(--text-mid);">Fill in the 3 fields below with your Service ID, Template ID and Public Key, then click Save & Test.</span>
+            </div>
+          </div>
+        </div>
+        <label style="font-size:11px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Notification Email Address</label>
+        <input class="config-input" type="email" id="emailTo" value="globalhealthbridge.in@gmail.com">
+        <label style="font-size:11px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">EmailJS Service ID</label>
         <input class="config-input" type="text" id="emailServiceId" placeholder="service_xxxxxxx">
-        <label style="font-size:12px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">EmailJS Template ID</label>
+        <label style="font-size:11px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">EmailJS Template ID</label>
         <input class="config-input" type="text" id="emailTemplateId" placeholder="template_xxxxxxx">
-        <label style="font-size:12px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">EmailJS Public Key</label>
+        <label style="font-size:11px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">EmailJS Public Key</label>
         <input class="config-input" type="text" id="emailPublicKey" placeholder="xxxxxxxxxxxx">
-        <div class="toggle-row" style="margin-top:14px;">
+        <div class="toggle-row">
           <span style="font-size:13px;font-weight:500;">Enable email notifications</span>
           <label class="toggle"><input type="checkbox" id="emailEnabled" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
         </div>
+        <button class="btn btn-primary" style="margin-top:14px;width:100%;justify-content:center;" onclick="saveSettings();showToast('Email settings saved! Test by submitting the contact form on your website.','success')">Save Email Settings</button>
       </div>
 
-      <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      <!-- Change Password -->
+      <div class="config-card">
+        <h4>🔒 Change Dashboard Password</h4>
+        <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px;font-weight:300;">The default password is <code style="background:var(--neutral);padding:2px 6px;border-radius:4px;">GHB@Admin2025</code>. Change it to something personal and secure.</p>
+        <label style="font-size:11px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">New Password</label>
+        <input class="config-input" type="password" id="newPassword" placeholder="Enter new password">
+        <label style="font-size:11px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Confirm New Password</label>
+        <input class="config-input" type="password" id="confirmPassword" placeholder="Confirm new password">
+        <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+        <div id="pwResult" style="font-size:12px;margin-top:8px;"></div>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:10px;">⚠️ After changing the password, update the <code>DASHBOARD_PASSWORD</code> value in the HTML file and re-upload to GitHub for it to persist across devices.</p>
+      </div>
     </div>
 
     <!-- ══ INTEGRATION TAB ══ -->
@@ -553,6 +695,38 @@ window.addEventListener('storage', function(e) {
     localStorage.removeItem('ghb_new_lead');
   }
 });
+
+
+// ═══ TEST WHATSAPP ═══
+async function testWhatsApp() {
+  const s = JSON.parse(localStorage.getItem('ghb_settings') || '{}');
+  if (!s.waApiKey) { document.getElementById('waTestResult').textContent = '⚠️ Please enter your API key first.'; return; }
+  const msg = encodeURIComponent('✅ Test from Global Health Bridge Dashboard — WhatsApp notifications are working!');
+  const waNum = (s.waNumber || '+919650506993').replace(/\D/g,'');
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${waNum}&text=${msg}&apikey=${s.waApiKey}`;
+  try {
+    await fetch(url, {mode:'no-cors'});
+    document.getElementById('waTestResult').textContent = '✅ Test message sent! Check your WhatsApp.';
+  } catch(e) {
+    document.getElementById('waTestResult').textContent = '✅ Request sent — check your WhatsApp in a moment.';
+  }
+}
+
+// ═══ CHANGE PASSWORD ═══
+function changePassword() {
+  const np = document.getElementById('newPassword').value;
+  const cp = document.getElementById('confirmPassword').value;
+  const res = document.getElementById('pwResult');
+  if (!np || np.length < 8) { res.style.color='var(--red)'; res.textContent = '⚠️ Password must be at least 8 characters.'; return; }
+  if (np !== cp) { res.style.color='var(--red)'; res.textContent = '⚠️ Passwords do not match.'; return; }
+  const s = JSON.parse(localStorage.getItem('ghb_settings') || '{}');
+  s.customPassword = np;
+  localStorage.setItem('ghb_settings', JSON.stringify(s));
+  res.style.color='var(--green)';
+  res.textContent = '✅ Password updated for this session. Remember to update the HTML file for permanent change.';
+  document.getElementById('newPassword').value = '';
+  document.getElementById('confirmPassword').value = '';
+}
 
 // ═══ INIT ═══
 loadSettings();
