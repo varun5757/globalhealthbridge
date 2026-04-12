@@ -969,7 +969,7 @@ a{color:inherit;}
             <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:12px;">Your information is kept confidential. We respond within 24 hours.</p>
             <div id="formSuccess" style="display:none;background:#d1fae5;border-radius:10px;padding:16px;text-align:center;margin-top:12px;">
               <p style="font-weight:600;color:#065f46;margin-bottom:4px;">✅ Enquiry Sent Successfully!</p>
-              <p style="font-size:13px;color:#047857;">Our team will contact you within 24 hours. You can also WhatsApp us directly at +91 96505 06993.</p>
+              <p style="font-size:13px;color:#047857;">Thank you! Our team will review your case and contact you within 24 hours.</p>
             </div>
           </div>
         </div>
@@ -1232,7 +1232,7 @@ window.scrollTo(0, 0);
 // ═══ CONFIG — filled in by user ═══
 // These are set via the dashboard Settings tab and stored in localStorage
 function getCfg() {
-  return JSON.parse(localStorage.getItem('ghb_settings') || '{}');
+  return JSON.parse(localStorage.getItem('ghb_settings_v2') || '{}');
 }
 
 async function submitEnquiry(e) {
@@ -1262,17 +1262,15 @@ async function submitEnquiry(e) {
 
   const cfg = getCfg();
   const payload = {
-    firstName, lastName,
-    fullName: (firstName + ' ' + lastName).trim(),
+    action: 'add_lead',
+    name: (firstName + ' ' + lastName).trim(),
     email, phone, country, specialty,
     description: desc,
-    source: 'Website Form',
-    heardFrom,
-    waApiKey:    cfg.waApiKey    || '',
-    notifyEmail: cfg.emailTo     || 'globalhealthbridge.in@gmail.com'
+    source: 'Website Form'
   };
 
-  const scriptUrl = cfg.scriptUrl || '';
+  // Use saved URL from dashboard settings, or the hardcoded fallback
+  const scriptUrl = cfg.scriptUrl || 'https://script.google.com/macros/s/AKfycby86Tv5fb8mszx0uKeMD8INmH5apCo9kEiZM5qxw2DocYAFgWSKuegeqvKb67sNXMVR4Q/exec';
 
   let submitted = false;
 
