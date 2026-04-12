@@ -705,7 +705,7 @@ async function testWhatsApp() {
   const s = getSettings();
   if (!s.waApiKey) { showToast('Please save your API key first', 'error'); return; }
   const msg = encodeURIComponent('✅ Test from GHB Dashboard — WhatsApp alerts are working!');
-  const num = '+919650506993'.replace(/\D/g, '');
+  const num = '+919871615884'.replace(/\D/g, '');
   const url = `https://api.callmebot.com/whatsapp.php?phone=${num}&text=${msg}&apikey=${s.waApiKey}`;
   document.getElementById('waTestResult').textContent = '⏳ Sending test message...';
   try {
@@ -730,7 +730,7 @@ async function saveEmailSettings() {
     await emailjs.send(sid, tid, {
       lead_name: 'Test Lead',
       lead_email: 'test@example.com',
-      lead_phone: '+91 96505 06993',
+      lead_phone: '+91 98716 15884',
       lead_country: 'India',
       lead_specialty: 'Cardiology',
       lead_description: 'This is a test email from your GHB Dashboard.',
