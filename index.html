@@ -110,9 +110,7 @@ nav.scrolled{box-shadow:var(--shadow);}
 .hero-badge-icon svg{width:15px;height:15px;}
 .hb-title{font-size:12px;font-weight:600;color:var(--text);}
 .hb-sub{font-size:10px;color:var(--text-muted);}
-.hero-badge2{position:absolute;top:-16px;right:20px;background:var(--teal);color:#fff;border-radius:40px;padding:10px 18px;text-align:center;box-shadow:0 6px 20px rgba(13,107,85,0.3);}
-.hb2-num{font-family:var(--font-display);font-size:22px;font-weight:600;line-height:1;}
-.hb2-txt{font-size:10px;opacity:0.8;letter-spacing:0.04em;}
+/* hb2 badge removed */'
 
 /* ═══ TRUST STRIP ═══ */
 .trust-strip{background:#fff;border-top:1px solid var(--border-light);border-bottom:1px solid var(--border-light);padding:18px 0;}
@@ -147,7 +145,7 @@ nav.scrolled{box-shadow:var(--shadow);}
 .section-dark h2 em{color:#7ec8f0;}
 .section-dark .section-desc{color:rgba(255,255,255,0.65);}
 .why-card{padding:26px 22px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);}
-.why-num{font-family:var(--font-display);font-size:32px;font-weight:600;color:rgba(255,255,255,0.1);line-height:1;margin-bottom:14px;}
+.why-num{font-family:var(--font-display);font-size:32px;font-weight:600;color:rgba(255,255,255,0.07);line-height:1;margin-bottom:14px;letter-spacing:-0.02em;}
 .why-card h4{color:#fff;margin-bottom:8px;}
 .why-card p{font-size:13px;color:rgba(255,255,255,0.6);font-weight:300;line-height:1.7;}
 
@@ -412,6 +410,27 @@ a{color:inherit;}
             <div class="stat"><div class="stat-num">JCI</div><div class="stat-label">Accredited partners</div></div>
             <div class="stat"><div class="stat-num">6+</div><div class="stat-label">Specialties covered</div></div>
           </div>
+          <!-- Standalone accreditation badges -->
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:32px;">
+            <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:40px;padding:8px 16px 8px 8px;box-shadow:var(--shadow);">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--teal-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="#0d6b55" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:var(--text);line-height:1.2;">JCI Accredited Partners</div>
+                <div style="font-size:10px;color:var(--text-muted);">International gold standard</div>
+              </div>
+            </div>
+            <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:40px;padding:8px 16px 8px 8px;box-shadow:var(--shadow);">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="#1a5fa8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:var(--text);line-height:1.2;">NABH Accredited Partners</div>
+                <div style="font-size:10px;color:var(--text-muted);">India's highest standard</div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="hero-visual-wrap" style="position:relative;">
           <div class="hero-card">
@@ -422,13 +441,8 @@ a{color:inherit;}
             <div class="jstep"><div class="jstep-num">4</div><div><div class="jstep-title">Visa, travel & arrival support</div><div class="jstep-desc">We handle logistics so you focus on healing</div></div></div>
             <div class="jstep"><div class="jstep-num">5</div><div><div class="jstep-title">Post-treatment follow-up</div><div class="jstep-desc">Tele-consult & local doctor coordination</div></div></div>
           </div>
-          <div class="hero-badge">
-            <div class="hero-badge-icon">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="#0d6b55" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <div><div class="hb-title">NABH & JCI Accredited</div><div class="hb-sub">All partner hospitals verified</div></div>
-          </div>
-          <div class="hero-badge2"><div class="hb2-num">30%</div><div class="hb2-txt">Industry growth<br>by 2030</div></div>
+
+
         </div>
       </div>
     </div>
@@ -839,11 +853,7 @@ a{color:inherit;}
           </div>
         </div>
         <div>
-          <div style="background:linear-gradient(135deg,#0a2744,#0d4a7a);border-radius:var(--radius-lg);padding:28px;color:#fff;margin-bottom:16px;">
-            <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:600;color:rgba(255,255,255,0.15);line-height:1;margin-bottom:12px;">30%</div>
-            <h4 style="color:#fff;margin-bottom:6px;">Medical Tourism Growth by 2030</h4>
-            <p style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:300;line-height:1.6;">India's medical tourism industry is projected to grow at a CAGR of 12–13%, according to a report by the National Medical Commission.</p>
-          </div>
+
           <div style="background:#fff;border-radius:var(--radius-lg);border:1px solid var(--border);padding:24px;margin-bottom:16px;">
             <h4 style="margin-bottom:14px;">Who We Serve</h4>
             <div class="value-card" style="padding-top:0;border-bottom:1px solid var(--border-light);">
