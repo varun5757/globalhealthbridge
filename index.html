@@ -1227,6 +1227,9 @@ const specialtyData = {
 window.scrollTo(0, 0);
 </script>
 
+<!-- EmailJS library -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
 <!-- Lead Capture — Google Sheets Backend -->
 <script>
 // ═══ CONFIG — filled in by user ═══
@@ -1289,11 +1292,35 @@ async function submitEnquiry(e) {
     }
   }
 
+  // ── Email notification via EmailJS ──
+  // Keys hardcoded so notifications fire for ALL visitors worldwide
+  const ejSid = 'service_4sxxdu5';
+  const ejTid = 'template_365sl2b';
+  const ejPk  = 'g-BsBIZbEcAIGtzBa';
+
+  try {
+    emailjs.init(ejPk);
+    await emailjs.send(ejSid, ejTid, {
+      lead_name:        payload.name,
+      lead_email:       email,
+      lead_phone:       phone       || 'Not provided',
+      lead_country:     country,
+      lead_specialty:   specialty,
+      lead_description: desc        || 'Not provided',
+      lead_source:      'Website Form',
+      lead_date:        new Date().toLocaleString('en-IN', {timeZone:'Asia/Kolkata'}),
+      reply_to:         email
+    });
+    console.log('Email notification sent successfully');
+  } catch(err) {
+    console.log('EmailJS error:', err);
+  }
+
   // ── Fallback: localStorage (always save locally too) ──
   const lead = {
     id: 'GHB-' + Date.now(),
     date: new Date().toISOString(),
-    name: payload.fullName,
+    name: payload.name,
     email, phone, country, specialty,
     description: desc,
     source: 'Website Form',
